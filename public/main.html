@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' http://localhost:3000; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';">
+  <title>Interview Assistant</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">Interview Assistant <span>v2.0</span></div>
+      <div class="header-controls">
+        <button id="clearChatBtn" class="header-btn" title="Clear Chat"><i class="fas fa-trash"></i></button>
+        <button id="toggleBrowserBtn" class="header-btn" title="Show Web Browser"><i class="fas fa-globe"></i></button>
+      </div>
+    </div>
+  </header>
+  
+  <div id="setupContainer">
+    <h2>Personalize Your Assistant</h2>
+    
+    <label for="userName">What should the assistant call you?</label>
+    <input type="text" id="userName" placeholder="Your name" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 1rem; font-size: 0.95rem;">
+    
+    <label for="userRole">What do you do? (e.g., Software Engineer, Student)</label>
+    <input type="text" id="userRole" placeholder="Your role or profession" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 1rem; font-size: 0.95rem;">
+    
+    <label for="assistantTraits">What traits should the assistant have? (e.g., friendly, concise, formal)</label>
+    <input type="text" id="assistantTraits" placeholder="Describe the desired personality" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 1rem; font-size: 0.95rem;">
+    
+    <label for="userContext">Anything else the assistant should know about you?</label>
+    <textarea id="userContext" placeholder="Enter any additional context, background, or preferences here..."></textarea>
+    
+    <button id="saveAndStartBtn">Save & Start Chatting</button>
+  </div>
+
+  <!-- Main Chat Container -->
+  <div id="mainContainer" class="hidden">
+    <!-- Repurpose the right panel as the main chat area -->
+    <div class="chat-panel">
+      <h3 class="panel-title">Conversation</h3>
+      <div id="conversationArea" class="panel-content" style="flex-grow: 1; margin-bottom: 1rem;">
+        <!-- Chat messages will be appended here -->
+      </div>
+      <div class="chat-input-area" style="display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <textarea id="chatInput" placeholder="Type message or press mic or capture screen..."></textarea>
+        
+        <button id="clearChatBtn">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+
+        <button id="captureBtn">
+            <i class="fas fa-camera"></i>
+        </button>
+        
+        <button id="recordBtn">
+            <i class="fas fa-microphone"></i>
+        </button>
+        
+        <button id="sendBtn">
+            <i class="fas fa-paper-plane"></i> 
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="browserViewContainer" style="flex-grow: 1; overflow: hidden; display: none; background-color: #f0f0f0;">
+    <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #555; flex-direction: column;">
+        <i class="fas fa-spinner fa-spin fa-3x" style="margin-bottom: 20px;"></i>
+        <p>Loading Browser View...</p>
+        <p style="font-size: 0.8em; margin-top: 10px;">If this takes too long, try toggling again or ensure nothing is blocking it.</p>
+    </div>
+  </div>
+
+  <script src="./ui-controller.js"></script>
+</body>
+</html> 

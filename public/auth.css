@@ -1,0 +1,161 @@
+/* --- Base & Variables --- */
+:root {
+  --bg-main: #f4f7f9;
+  --bg-panel: #ffffff;
+  --primary: #007bff;
+  --primary-dark: #0056b3;
+  --text-main: #212529;
+  --text-light: #495057;
+  --border-color: #dee2e6;
+  --danger: #dc3545;
+  --success: #28a745;
+  --info: #17a2b8;
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.07);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+}
+
+.auth-box {
+  background-color: var(--bg-panel);
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+h1 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+p {
+  color: var(--text-light);
+  margin-bottom: 2rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Important for padding and width */
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: var(--primary);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: transparent;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.toggle-view {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.toggle-view a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.toggle-view a:hover {
+  text-decoration: underline;
+}
+
+.hidden {
+  display: none;
+}
+
+.message-area {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  display: none; /* Hidden by default */
+}
+
+.message-area.error {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--danger);
+  display: block;
+}
+
+.message-area.success {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: var(--success);
+  display: block;
+}
+
+.message-area.info {
+  background-color: rgba(23, 162, 184, 0.1);
+  color: var(--info);
+  display: block;
+} 

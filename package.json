@@ -1,0 +1,57 @@
+{
+  "name": "proxy-ai-app",
+  "version": "1.0.0",
+  "description": "Secure, downloadable AI assistant.",
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "build:ts": "tsc",
+    "start": "cross-env NODE_ENV=development yarn build:ts && electron .",
+    "start:prod": "cross-env NODE_ENV=production yarn build:ts && electron .",
+    "build": "cross-env NODE_ENV=production yarn build:ts && electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.24.0",
+    "@supabase/supabase-js": "^2.50.0",
+    "axios": "^1.8.4",
+    "dotenv": "^16.4.7",
+    "electron": "^31.2.1",
+    "form-data": "^4.0.2",
+    "microphone-stream": "^6.0.1",
+    "node-vad": "^1.1.4",
+    "screenshot-desktop": "^1.15.1",
+    "tesseract.js": "^6.0.1",
+    "wav": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "cross-env": "^7.0.3",
+    "electron-builder": "^26.0.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "build": {
+    "appId": "com.proxyai.app",
+    "productName": "Proxy AI Assistant",
+    "files": [
+      "dist/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "release"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico"
+    }
+  }
+}

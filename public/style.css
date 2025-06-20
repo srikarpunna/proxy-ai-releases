@@ -1,0 +1,375 @@
+/* --- Base & Variables --- */
+:root {
+  --bg-main: #f4f7f9; /* Light grey background */
+  --bg-panel: #ffffff; /* White panels */
+  --bg-input: #ffffff; /* White input */
+  --bg-msg-user: #007bff; /* Blue user messages */
+  --bg-msg-asst: #e9ecef; /* Light grey assistant messages */
+  --text-main: #212529; /* Dark primary text */
+  --text-light: #495057; /* Lighter secondary text */
+  --text-muted: #6c757d; /* Muted text */
+  --text-on-user-msg: #ffffff; /* Text on user messages */
+  --text-on-asst-msg: var(--text-main); /* Text on assistant messages */
+  --primary: #007bff; /* Primary blue */
+  --primary-dark: #0056b3; /* Darker blue for hover */
+  --danger: #dc3545; /* Red for recording */
+  --danger-dark: #a71d2a; /* Darker red */
+  --border-color: #dee2e6; /* Standard border */
+  --border-input-focus: #80bdff; /* Blue focus border */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.07);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  font-size: 15px; /* Slightly smaller base font */
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Prevent body scroll */
+}
+
+/* --- Header --- */
+header {
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem; /* Slightly reduced padding */
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0; /* Prevent header from shrinking */
+  -webkit-app-region: drag; /* Keep draggable */
+  user-select: none;
+  position: relative; /* For positioning child controls */
+}
+header .container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center logo */
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative; /* Ensure it's a positioning context if needed */
+}
+header .logo {
+  font-size: 1.1rem; /* Slightly smaller logo */
+  font-weight: 600;
+  color: var(--primary);
+  -webkit-app-region: no-drag; /* Logo not draggable */
+}
+header .logo span {
+  color: var(--text-light);
+  font-weight: 400;
+}
+
+.header-controls {
+    -webkit-app-region: no-drag;
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 0.5rem; /* Space between buttons if more are added */
+}
+
+.header-button {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.header-button:hover {
+    background-color: var(--bg-msg-asst);
+    color: var(--text-main);
+}
+.header-button i {
+    font-size: 1rem; /* Icon size */
+}
+
+/* --- Setup Container (Keep styles for now) --- */
+#setupContainer {
+  background-color: var(--bg-panel);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 600px; /* Smaller max-width */
+  margin: 3rem auto; /* More margin */
+}
+#setupContainer.hidden { display: none; }
+#setupContainer h2 { margin-top: 0; margin-bottom: 1.5rem; color: var(--primary); font-weight: 500; }
+#setupContainer label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; color: var(--text-light); }
+#setupContainer input[type="text"],
+#setupContainer textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem; /* More spacing */
+  background-color: var(--bg-input);
+  color: var(--text-main);
+}
+#setupContainer input[type="text"]:focus,
+#setupContainer textarea:focus {
+    outline: none;
+    border-color: var(--border-input-focus);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+#setupContainer textarea { min-height: 100px; }
+#setupContainer button { /* Style the setup button */
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: var(--primary);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+#setupContainer button:hover {
+    background-color: var(--primary-dark);
+}
+
+/* --- Main Chat Container --- */
+#mainContainer {
+  display: flex; /* Use flex for the main content */
+  flex-grow: 1; /* Allow it to fill remaining space */
+  overflow: hidden; /* Prevent overflow */
+  padding: 1rem; /* Padding around the chat panel */
+}
+ #mainContainer.hidden { display: none; }
+
+/* Chat Panel fills the main container */
+.chat-panel {
+  flex-grow: 1;
+  background-color: var(--bg-panel);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Panel controls overflow */
+  max-width: 100%; /* Ensure it doesn't exceed parent */
+}
+.panel-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0; /* Adjusted margin */
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-light);
+}
+
+/* --- Conversation Area --- */
+#conversationArea {
+  flex-grow: 1; /* Take available space */
+  overflow-y: auto; /* Enable vertical scroll */
+  padding: 0 1rem 1rem 0; /* Padding, right padding for scrollbar */
+  margin-bottom: 1rem;
+}
+/* Custom scrollbar (optional) */
+#conversationArea::-webkit-scrollbar {
+    width: 6px;
+}
+#conversationArea::-webkit-scrollbar-track {
+    background: transparent;
+ }
+#conversationArea::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.15);
+  border-radius: 6px;
+    border: none;
+}
+#conversationArea::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,0,0,0.25);
+}
+
+/* --- Chat Messages --- */
+#conversationArea .message {
+  padding: 0.6rem 1rem; /* Slightly less padding */
+  margin-bottom: 0.75rem;
+  border-radius: 18px; /* More rounded */
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+#conversationArea .message-user {
+  background-color: var(--bg-msg-user);
+  color: var(--text-on-user-msg);
+  margin-left: auto; 
+  border-bottom-right-radius: 4px; /* asymmetric rounding */
+  max-width: 80%;
+}
+#conversationArea .message-assistant {
+  background-color: var(--bg-msg-asst);
+  color: var(--text-on-asst-msg);
+  border-bottom-left-radius: 4px; /* asymmetric rounding */
+  max-width: 100%;
+}
+#conversationArea .message-role {
+  font-weight: 600; /* Bolder role */
+  font-size: 0.75rem; /* Smaller role */
+  margin-bottom: 0.25rem;
+  opacity: 0.8;
+  text-transform: none; /* Remove uppercase */
+}
+#conversationArea .message-user .message-role {
+    color: rgba(255, 255, 255, 0.8);
+}
+#conversationArea .message-assistant .message-role {
+    color: var(--text-muted);
+}
+ /* Add spacing below role */
+#conversationArea .message-role + .message-content {
+    margin-top: 0.1rem;
+}
+ /* Message Content Base Style */
+#conversationArea .message-content {
+    white-space: pre-wrap; 
+    font-size: 0.95rem; /* Slightly smaller message text */
+}
+ /* Links within messages */
+#conversationArea .message-content a {
+   color: inherit; 
+   text-decoration: underline;
+   opacity: 0.9;
+}
+#conversationArea .message-user .message-content a {
+   color: var(--text-on-user-msg);
+   font-weight: 500;
+}
+/* Code Blocks - Dark Theme (LeetCode/VSCode style) */
+#conversationArea .message-content pre {
+    background-color: #282c34; /* atom-one-dark background */
+    color: #abb2bf; /* atom-one-dark default text */
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    margin: 0.75rem 0;
+    border: 1px solid #3a4049; /* Dark border */
+    white-space: pre;
+}
+
+/* Target the code block that highlight.js processes */
+ #conversationArea .message-content pre code.hljs {
+    padding: 0;
+    background: transparent; /* Let the <pre> handle the background */
+    color: inherit; /* Let the <pre> handle the default color */
+ }
+
+/* For inline code, not inside a <pre> block */
+ #conversationArea .message-content p > code,
+ #conversationArea .message-content li > code {
+     background-color: #f0f2f4;
+     border: 1px solid var(--border-color);
+     color: #d63369; /* A pink/red color for emphasis */
+     padding: 0.2em 0.4em;
+     border-radius: 4px;
+     font-size: 0.9em;
+ }
+
+/* --- Chat Input Area --- */
+.chat-input-area {
+  display: flex; 
+  align-items: flex-end; /* Align items to bottom for multiline text */
+  gap: 0.5rem; 
+  border-top: 1px solid var(--border-color); 
+  padding-top: 1rem;
+  flex-shrink: 0; /* Prevent input area from shrinking */
+}
+#chatInput {
+  flex-grow: 1; 
+  padding: 0.6rem 0.9rem; 
+  border: 1px solid var(--border-color); 
+  border-radius: 20px; /* Pill shape */
+  resize: none; 
+  font-size: 0.95rem; 
+  line-height: 1.4;
+  min-height: 42px; /* Ensure min height */
+  max-height: 150px; /* Limit growth */
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: default; /* Keep default cursor on hover */
+}
+#chatInput:focus {
+  outline: none;
+  border-color: var(--border-input-focus);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+#chatInput::placeholder {
+  color: var(--text-muted);
+}
+
+/* Input Area Buttons */
+.chat-input-area button {
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+    width: 42px; 
+    height: 42px; 
+    border-radius: 50%; /* Circular buttons */
+    border: none;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem; /* Icon size */
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+#recordBtn {
+    color: var(--text-light);
+    background-color: var(--bg-panel); 
+    border: 1px solid var(--border-color);
+}
+#recordBtn:hover {
+    background-color: #f1f3f5; /* Subtle hover */
+}
+#recordBtn i.fa-stop {
+    color: var(--danger); /* Red stop icon */
+}
+/* Add subtle animation for recording state */
+#recordBtn[style*="#dc3545"] { /* Target when recording bg is set */
+    border-color: var(--danger);
+    animation: pulse-red 1.5s infinite;
+}
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+#sendBtn {
+    color: #fff;
+    background-color: var(--primary);
+}
+#sendBtn:hover {
+    background-color: var(--primary-dark);
+}
+#sendBtn:disabled {
+    background-color: #a0c3ed;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* --- Utility / Cleanup --- */
+.hidden {
+  display: none !important;
+}
+/* Remove old layout styles if they exist */
+.left-panel, .right-panel { display: none; } 
