@@ -1,9 +1,11 @@
-import { app, BrowserWindow, ipcMain, desktopCapturer, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, desktopCapturer, shell, screen } from 'electron';
 import * as path from 'path';
-import { supabase } from '../lib/supabaseClient';
 import * as dotenv from 'dotenv';
 
+// Load environment variables BEFORE importing supabaseClient
 dotenv.config();
+
+import { supabase } from '../lib/supabaseClient';
 
 declare global {
   var developmentUser: any;
@@ -13,6 +15,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -270,10 +273,22 @@ ipcMain.on('chat:send', async (event, requestData) => {
 ipcMain.handle('capture-screen', async (event) => {
   const window = BrowserWindow.fromWebContents(event.sender)!;
   try {
-    const sources = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 1920, height: 1080 } });
-    // For now, we'll just capture the primary display.
-    // A more advanced implementation could let the user choose.
-    const primarySource = sources[0];
+    const sources = await desktopCapturer.getSources({ 
+      types: ['screen'], 
+      thumbnailSize: { width: 1920, height: 1080 } 
+    });
+    
+    // Find the primary display specifically
+    let primarySource = sources.find(source => source.display_id === screen.getPrimaryDisplay().id.toString());
+    
+    // Fallback to first screen if primary not found
+    if (!primarySource) {
+      primarySource = sources[0];
+    }
+    
+    if (!primarySource) {
+      throw new Error('No screen sources available');
+    }
     
     return {
       base64: primarySource.thumbnail.toDataURL().split(',')[1], // remove the data url prefix

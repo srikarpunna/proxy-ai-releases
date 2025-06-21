@@ -6,12 +6,31 @@
 
 # Build output
 /dist
+/release
+
+# TypeScript compiled output
+/src/electron/*.js
+/src/electron/*.js.map
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Electron build artifacts
+*.dmg
+*.exe
+*.AppImage
+*.deb
+*.rpm
+*.snap
+*.blockmap
+*.yml
+
+# Code signing certificates
+*.p12
+*.pem
 
 # Other
 .DS_Store 

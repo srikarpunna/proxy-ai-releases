@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   startSession: (userId: any) => ipcRenderer.invoke('session:start', { userId }),
   sendChatMessage: (data: any) => ipcRenderer.send('chat:send', data),
   onChatStream: (callback: any) => ipcRenderer.on('chat:stream-chunk', (_event: any, data: any) => callback(data)),
+  removeAllListeners: (channel: any) => ipcRenderer.removeAllListeners(channel),
   captureScreen: () => ipcRenderer.invoke('capture-screen'),
   uploadAudio: (uploadData: any) => ipcRenderer.invoke('audio:upload', uploadData),
   openExternalUrl: (url: any) => ipcRenderer.invoke('open-external-url', url),

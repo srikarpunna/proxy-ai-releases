@@ -100,6 +100,7 @@ class UIController {
     this.updateInputAreaAttachmentUI(false);
     this.updateInputAreaAudioUI(false);
 
+    // Create a NEW assistant message for this response
     const assistantMessageElement = this.displayAssistantMessage("");
     const assistantContentElement = assistantMessageElement.querySelector('.message-content');
     let fullReply = "";
@@ -112,6 +113,13 @@ class UIController {
         imageData: imageDataToSend,
       };
 
+      // Debug: Log conversation history being sent
+      console.log('🔍 Sending conversation history to LLM:', {
+        historyLength: requestData.history.length,
+        history: requestData.history,
+        currentMessage: messageText
+      });
+
       if (audioDataToProcess) {
         requestData.audioData = {
           base64: await this.convertBlobToBase64(audioDataToProcess.blob),
@@ -119,62 +127,79 @@ class UIController {
         };
       }
 
-      // THIS IS THE REFACTORED PART
-      window.electronAPI.sendChatMessage(requestData);
+      // Clear any existing stream listeners to prevent mixing
+      if (window.electronAPI && window.electronAPI.removeAllListeners) {
+        window.electronAPI.removeAllListeners('chat:stream-chunk');
+      }
+
+      // Use Electron IPC - send the message via the correct method
+      if (window.electronAPI && window.electronAPI.sendChatMessage) {
+        window.electronAPI.sendChatMessage(requestData);
+      } else {
+        throw new Error('Electron API not available');
+      }
 
       const decoder = new TextDecoder();
       let buffer = '';
 
-      window.electronAPI.onChatStream((streamEvent) => {
-        if (streamEvent.status === 'error') {
-          console.error("Error from chat stream:", streamEvent.error);
-          if (assistantContentElement) {
-            assistantContentElement.innerHTML = this.renderAssistantContent(`Sorry, I encountered an error: ${streamEvent.error}`);
+      // Listen for streaming chunks via Electron IPC
+      if (window.electronAPI && window.electronAPI.onChatStream) {
+        window.electronAPI.onChatStream((streamEvent) => {
+          if (streamEvent.status === 'error') {
+            console.error("Error from chat stream:", streamEvent.error);
+            if (assistantContentElement) {
+              assistantContentElement.innerHTML = this.renderAssistantContent(`Sorry, I encountered an error: ${streamEvent.error}`);
+            }
+            return;
           }
-          return;
-        }
 
-        if (streamEvent.status === 'done') {
-          this.conversationHistory.push({ role: 'assistant', content: fullReply });
-          assistantContentElement.innerHTML = this.renderAssistantContent(fullReply);
-          // Ensure final code blocks are highlighted
-          assistantContentElement.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-          });
-          return;
-        }
+          if (streamEvent.status === 'done') {
+            this.conversationHistory.push({ role: 'assistant', content: fullReply });
+            console.log('✅ Assistant response added to history. Total messages:', this.conversationHistory.length);
+            console.log('📝 Current conversation history:', this.conversationHistory);
+            assistantContentElement.innerHTML = this.renderAssistantContent(fullReply);
+            // Ensure final code blocks are highlighted
+            assistantContentElement.querySelectorAll('pre code').forEach((block) => {
+              hljs.highlightElement(block);
+            });
+            return;
+          }
 
-        if (streamEvent.chunk) {
-          buffer += decoder.decode(streamEvent.chunk, { stream: true });
-          let boundary = buffer.indexOf('\n\n');
+          // Process raw chunks from Electron IPC
+          if (streamEvent.chunk) {
+            buffer += decoder.decode(streamEvent.chunk, { stream: true });
+            let boundary = buffer.indexOf('\n\n');
 
-          while (boundary !== -1) {
-            const message = buffer.substring(0, boundary);
-            buffer = buffer.substring(boundary + 2);
+            while (boundary !== -1) {
+              const message = buffer.substring(0, boundary);
+              buffer = buffer.substring(boundary + 2);
 
-            if (message.startsWith('data:')) {
-              const jsonStr = message.substring(5).trim();
-              if (jsonStr) {
-                try {
-                  const data = JSON.parse(jsonStr);
-                  if (data.error) throw new Error(data.error);
+              if (message.startsWith('data:')) {
+                const jsonStr = message.substring(5).trim();
+                if (jsonStr) {
+                  try {
+                    const data = JSON.parse(jsonStr);
+                    if (data.error) throw new Error(data.error);
 
-                  if (data.chunk === '[DONE]') {
-                    // This is now handled by the 'done' status event
-                    return;
+                    if (data.chunk === '[DONE]') {
+                      return;
+                    }
+
+                    fullReply += data.chunk;
+                    // Update THIS specific assistant message element
+                    assistantContentElement.innerHTML = this.renderAssistantContent(fullReply);
+                  } catch (e) {
+                    console.error('Error parsing stream data chunk:', jsonStr, e);
                   }
-
-                  fullReply += data.chunk;
-                  assistantContentElement.innerHTML = this.renderAssistantContent(fullReply);
-                } catch (e) {
-                  console.error('Error parsing stream data chunk:', jsonStr, e);
                 }
               }
+              boundary = buffer.indexOf('\n\n');
             }
-            boundary = buffer.indexOf('\n\n');
           }
-        }
-      });
+        });
+      } else {
+        throw new Error('Electron chat stream API not available');
+      }
 
     } catch (error) {
       console.error("Error preparing chat request:", error);
