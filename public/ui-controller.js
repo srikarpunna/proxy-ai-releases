@@ -73,6 +73,15 @@ class UIController {
     this.captureBtn?.addEventListener('click', () => this.handleCaptureScreenClick());
     this.clearChatBtn?.addEventListener('click', () => this.clearChat());
     this.toggleBrowserBtn?.addEventListener('click', () => this.toggleBrowserVisibility());
+    
+    // Manual update check button
+    const checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
+    checkUpdatesBtn?.addEventListener('click', () => {
+      if (window.updateManager) {
+        console.log('🔄 Manual update check triggered');
+        window.updateManager.checkForUpdates();
+      }
+    });
   }
   
   /**
@@ -666,6 +675,8 @@ class UIController {
 
 document.addEventListener('DOMContentLoaded', () => {
   window.uiController = new UIController();
+  // Initialize update manager
+  window.updateManager = new UpdateManager();
 });
 
 /**
@@ -691,6 +702,9 @@ class UpdateManager {
       // Display version info
       this.displayVersionInfo();
       
+      // Set up update event listeners
+      this.setupUpdateEventListeners();
+      
       // Check for updates on startup (after a delay)
       setTimeout(() => {
         this.checkForUpdates();
@@ -712,6 +726,45 @@ class UpdateManager {
     versionElement.textContent = `v${this.currentVersion}`;
   }
 
+  setupUpdateEventListeners() {
+    if (!window.electronAPI) return;
+    
+    // Listen for update events from main process
+    if (window.electronAPI.onUpdateAvailable) {
+      window.electronAPI.onUpdateAvailable((info) => {
+        console.log('🚀 Update available event received:', info);
+        this.showUpdateNotification(info);
+      });
+    }
+    
+    if (window.electronAPI.onUpdateNotAvailable) {
+      window.electronAPI.onUpdateNotAvailable((info) => {
+        console.log('ℹ️ No update available:', info);
+      });
+    }
+    
+    if (window.electronAPI.onUpdateError) {
+      window.electronAPI.onUpdateError((error) => {
+        console.error('❌ Update error:', error);
+        this.showError(error);
+      });
+    }
+    
+    if (window.electronAPI.onUpdateDownloadProgress) {
+      window.electronAPI.onUpdateDownloadProgress((progress) => {
+        console.log('📥 Download progress:', progress);
+        this.showDownloadProgress(progress);
+      });
+    }
+    
+    if (window.electronAPI.onUpdateReadyToInstall) {
+      window.electronAPI.onUpdateReadyToInstall((info) => {
+        console.log('✅ Update ready to install:', info);
+        this.showReadyToInstall();
+      });
+    }
+  }
+
   async checkForUpdates() {
     if (!window.electronAPI || !window.electronAPI.checkForUpdates) {
       console.log('Update functionality not available in this environment');
@@ -720,13 +773,22 @@ class UpdateManager {
 
     try {
       console.log('🔍 Checking for updates...');
+      console.log('📱 Current version:', this.currentVersion);
+      console.log('🔗 Checking repository: srikarpunna/proxy-ai-releases');
+      
       const result = await window.electronAPI.checkForUpdates();
+      
+      console.log('📋 Update check result:', result);
       
       if (result.success && result.result) {
         console.log('✅ Update check completed');
+        console.log('📦 Update info:', result.result);
         // The auto-updater will handle showing notifications
       } else {
         console.log('ℹ️ No updates available or error occurred');
+        if (result.error) {
+          console.error('❌ Update check error:', result.error);
+        }
       }
     } catch (error) {
       console.error('Error checking for updates:', error);

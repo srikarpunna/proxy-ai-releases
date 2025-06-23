@@ -424,40 +424,61 @@ ipcMain.handle('audio:upload', async (event, { userId, audioData, mimeType }) =>
 });
 
 // --- Auto-Updater Configuration ---
-// Configure auto-updater only in production
-if (app.isPackaged) {
-  autoUpdater.logger = console;
-  autoUpdater.checkForUpdatesAndNotify();
+// Configure auto-updater (enabled for testing)
+console.log('🚀 Initializing auto-updater...');
+console.log('📦 App is packaged:', app.isPackaged);
+console.log('🔧 Node environment:', process.env.NODE_ENV);
 
-  // Auto-updater event handlers
-  autoUpdater.on('checking-for-update', () => {
-    console.log('🔍 Checking for update...');
-  });
+autoUpdater.logger = console;
+autoUpdater.checkForUpdatesAndNotify();
 
-  autoUpdater.on('update-available', (info) => {
-    console.log('✅ Update available:', info);
-  });
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  console.log('🔍 Checking for update...');
+});
 
-  autoUpdater.on('update-not-available', (info) => {
-    console.log('ℹ️ Update not available:', info);
+autoUpdater.on('update-available', (info) => {
+  console.log('✅ Update available:', info);
+  // Send notification to all windows
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('update:available', info);
   });
+});
 
-  autoUpdater.on('error', (err) => {
-    console.error('❌ Error in auto-updater:', err);
+autoUpdater.on('update-not-available', (info) => {
+  console.log('ℹ️ Update not available:', info);
+  // Send notification to all windows
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('update:not-available', info);
   });
+});
 
-  autoUpdater.on('download-progress', (progressObj) => {
-    let log_message = "📥 Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-    console.log(log_message);
+autoUpdater.on('error', (err) => {
+  console.error('❌ Error in auto-updater:', err);
+  // Send error to all windows
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('update:error', err.message);
   });
+});
 
-  autoUpdater.on('update-downloaded', (info) => {
-    console.log('✅ Update downloaded:', info);
-    autoUpdater.quitAndInstall();
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "📥 Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  console.log(log_message);
+  // Send progress to all windows
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('update:download-progress', progressObj);
   });
-}
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('✅ Update downloaded:', info);
+  // Send ready-to-install notification to all windows
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('update:ready-to-install', info);
+  });
+});
 
 // --- IPC Handlers ---
 
