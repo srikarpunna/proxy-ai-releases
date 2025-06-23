@@ -71,8 +71,8 @@
     "publish": {
       "provider": "github",
       "owner": "srikarpunna",
-      "repo": "proxy-ai-app",
-      "private": true
+      "repo": "proxy-ai-releases",
+      "private": false
     }
   }
 }
