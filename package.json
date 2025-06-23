@@ -1,6 +1,6 @@
 {
   "name": "proxy-ai-app",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Secure, downloadable AI assistant.",
   "main": "dist/electron/main.js",
   "scripts": {
@@ -44,6 +44,7 @@
       "!**/*.map"
     ],
     "mac": {
+      "icon": "public/assets/logo/logo.png",
       "category": "public.app-category.productivity",
       "target": [
         {
@@ -53,6 +54,7 @@
       ]
     },
     "win": {
+      "icon": "public/assets/logo/logo.png",
       "target": [
         {
           "target": "nsis",
@@ -61,6 +63,7 @@
       ]
     },
     "linux": {
+      "icon": "public/assets/logo/logo.png",
       "target": [
         {
           "target": "AppImage",
