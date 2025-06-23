@@ -1,0 +1,11 @@
+version: 1.0.3
+files:
+  - url: Proxy-AI-Assistant-1.0.3-arm64.dmg
+    sha512: CqklFS4ZTODx+Lf4/ENCySwGBHeTNey/d0ICXAlMtvptqd5cy8ESXSv5pXURpFOBiAgrRslDwRSJ5OU35ikqKg==
+    size: 100845020
+  - url: Proxy-AI-Assistant-1.0.3.dmg
+    sha512: HtrF9M/+jb8SmnWGIOMy6Xg6x6dPATKpVeVXhWCVPLUuSjtr+JtipPF8aRxrM3bJFvYLOjnXfsuwpMMOC48NNQ==
+    size: 106882383
+path: Proxy-AI-Assistant-1.0.3-arm64.dmg
+sha512: CqklFS4ZTODx+Lf4/ENCySwGBHeTNey/d0ICXAlMtvptqd5cy8ESXSv5pXURpFOBiAgrRslDwRSJ5OU35ikqKg==
+releaseDate: '2025-06-23T04:10:46.114Z'
