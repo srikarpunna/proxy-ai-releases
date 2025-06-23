@@ -1,6 +1,6 @@
 {
   "name": "proxy-ai-app",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Secure, downloadable AI assistant.",
   "main": "dist/electron/main.js",
   "scripts": {
