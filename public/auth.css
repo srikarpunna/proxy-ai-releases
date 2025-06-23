@@ -10,6 +10,7 @@
   --danger: #dc3545;
   --success: #28a745;
   --info: #17a2b8;
+  --warning: #ffc107;
   --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.07);
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -96,6 +97,19 @@ p {
   background-color: var(--primary-dark);
 }
 
+.btn-primary:disabled {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary:disabled:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
 .btn-secondary {
   display: block;
   width: 100%;
@@ -158,4 +172,56 @@ p {
   background-color: rgba(23, 162, 184, 0.1);
   color: var(--info);
   display: block;
+}
+
+/* --- Trial Status Styles --- */
+.trial-status-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #e8f5e8;
+  background-color: #f8fff8;
+}
+
+.trial-status-section.trial-warning {
+  border-color: #ffeaa7;
+  background-color: #fffbf0;
+}
+
+.trial-status-section.trial-expired {
+  border-color: #ffcccb;
+  background-color: #fff5f5;
+}
+
+.trial-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: var(--success);
+}
+
+.trial-status-section.trial-warning .trial-info h3 {
+  color: #856404;
+}
+
+.trial-status-section.trial-expired .trial-info h3 {
+  color: var(--danger);
+}
+
+.trial-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+#trial-days-left {
+  font-weight: 600;
+  color: var(--success);
+}
+
+.trial-status-section.trial-warning #trial-days-left {
+  color: #856404;
+}
+
+.trial-status-section.trial-expired #trial-days-left {
+  color: var(--danger);
 } 

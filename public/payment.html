@@ -4,31 +4,348 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payment - Proxy AI Assistant</title>
-  <link rel="stylesheet" href="auth.css"> <!-- Re-use auth styles for consistency -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+    integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #000;
+      --btn-color: #fdfdfd;
+      --btn-bg: #0A8DD3;
+      --primary-text-color: #0A8DD3;
+      --header-link-hover: #0A8DD3;
+      --input-hover-bd-color: #0A8DD3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: "Ubuntu", sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .gradient-text {
+      background: rgb(215,215,215);
+      background: linear-gradient(90deg, rgba(215,215,215,1) 18%, rgba(136,136,136,1) 71%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-img-bg-grad {
+      position: absolute;
+      left: 50%;
+      top: 20%;
+      transform: translateX(-50%);
+      height: 300px;
+      width: 300px;
+      background: rgb(126,34,206);
+      background: linear-gradient(90deg, #7e22ce91 8%, #625aafae 31%, #7badbbbc 76%, #54d2d0ca 89%);
+      filter: blur(50px);
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .auth-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 28rem;
+    }
+
+    .logo-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo-image {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1rem auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .logo-header h1 {
+      font-size: 1.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-header p {
+      color: #b1b1b1;
+      font-size: 0.875rem;
+    }
+
+    .auth-box {
+      background: rgba(8, 8, 8, 0.8);
+      border: 1px solid rgba(10, 141, 211, 0.3);
+      border-radius: 10px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .auth-box h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 1.5rem;
+    }
+
+    .trial-status-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid rgba(10, 141, 211, 0.3);
+      background: rgba(10, 141, 211, 0.1);
+    }
+
+    .trial-status-section.trial-warning {
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      background: rgba(255, 193, 7, 0.1);
+    }
+
+    .trial-status-section.trial-expired {
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      background: rgba(220, 38, 38, 0.1);
+    }
+
+    .trial-info h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.2rem;
+      color: var(--primary-text-color);
+      font-weight: 500;
+    }
+
+    .trial-status-section.trial-warning .trial-info h3 {
+      color: #ffc107;
+    }
+
+    .trial-status-section.trial-expired .trial-info h3 {
+      color: #dc3545;
+    }
+
+    .trial-info p {
+      margin: 0;
+      color: #b1b1b1;
+      font-size: 0.9rem;
+    }
+
+    #trial-days-left {
+      font-weight: 600;
+      color: var(--primary-text-color);
+    }
+
+    .trial-status-section.trial-warning #trial-days-left {
+      color: #ffc107;
+    }
+
+    .trial-status-section.trial-expired #trial-days-left {
+      color: #dc3545;
+    }
+
+    #payment-description {
+      color: #b1b1b1;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .btn-primary {
+      padding: 10px 15px;
+      width: 100%;
+      border-radius: 5px;
+      color: var(--btn-color);
+      background-color: var(--btn-bg);
+      border: none;
+      font-weight: 500;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 25px rgba(10, 141, 211, 0.2);
+    }
+
+    .btn-primary:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(10, 141, 211, 0.3);
+    }
+
+    .btn-primary:disabled {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: #fff;
+      cursor: not-allowed;
+      opacity: 0.6;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      padding: 8px 15px;
+      width: 100%;
+      border-radius: 5px;
+      color: var(--primary-text-color);
+      background-color: transparent;
+      border: 1px solid var(--primary-text-color);
+      font-weight: 500;
+      font-size: 0.9rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--primary-text-color);
+      color: #ffffff;
+    }
+
+    .btn-secondary:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(10, 141, 211, 0.3);
+    }
+
+    .message-area {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 5px;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .message-area.error {
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      color: #fca5a5;
+    }
+
+    .message-area.success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    .message-area.info {
+      background: rgba(10, 141, 211, 0.1);
+      border: 1px solid rgba(10, 141, 211, 0.3);
+      color: #93c5fd;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .auth-box {
+        padding: 1.5rem;
+      }
+      
+      .logo-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- Background gradient effect -->
+  <div class="hero-img-bg-grad"></div>
+  
   <div class="auth-container">
-    <div class="auth-box">
-      <h1>Unlock Full Access</h1>
-      <p>A one-time payment of $15 grants you 24 hours of full access to the AI Assistant.</p>
-      
-      <button id="pay-button" class="btn-primary" style="margin-top: 1rem;">
-        Pay $15 Now
-      </button>
+    <!-- Logo and Header -->
+    <div class="logo-header">
+      <img src="./assets/logo/logo.png" alt="Logo" class="logo-image">
+      <h1 class="gradient-text">Proxy AI Assistant</h1>
+      <p>Your privacy-focused desktop copilot</p>
+    </div>
 
-      <!-- Development Mode Bypass -->
-      <div id="dev-mode" style="display: none; margin-top: 1rem; padding: 1rem; background: #f0f8ff; border: 1px solid #0066cc; border-radius: 4px;">
-        <h3 style="margin: 0 0 0.5rem 0; color: #0066cc;">🛠️ Development Mode</h3>
-        <p style="margin: 0 0 0.5rem 0; font-size: 0.9em;">Skip payment for testing purposes</p>
-        <button id="dev-bypass-button" class="btn-secondary" style="font-size: 0.9em;">
-          Skip Payment (Dev Mode)
+    <div class="auth-box">
+      <h1>
+        <i class="bi bi-unlock"></i>
+        Unlock Full Access
+      </h1>
+      
+      <!-- Trial Status Section -->
+      <div id="trial-status" class="trial-status-section" style="display: none;">
+        <div class="trial-info">
+          <h3 id="trial-title">
+            <i class="bi bi-clock-history"></i>
+            Free Trial Active
+          </h3>
+          <p id="trial-message">You have <span id="trial-days-left"></span> remaining in your free trial.</p>
+        </div>
+      </div>
+      
+      <!-- Payment Section -->
+      <div id="payment-section">
+        <p id="payment-description">A one-time payment of $15 grants you 24 hours of full access to the AI Assistant.</p>
+        
+        <button id="pay-button" class="btn-primary">
+          <i class="bi bi-credit-card"></i>
+          Pay $15 Now
+        </button>
+        
+        <!-- Skip Payment Button (only shown during active trial) -->
+        <button id="skip-payment-btn" class="btn-secondary" style="display: none;">
+          <i class="bi bi-skip-forward"></i>
+          Skip Payment (Continue with Free Trial)
         </button>
       </div>
 
       <div id="message-area" class="message-area"></div>
     </div>
   </div>
+  
   <script src="https://js.stripe.com/v3/"></script>
   <script src="payment.js"></script>
+  <script>
+    // Enhanced message area styling
+    document.addEventListener('DOMContentLoaded', function() {
+      const messageArea = document.getElementById('message-area');
+      
+      // Override the message area display function
+      window.showMessage = function(message, type = 'info') {
+        messageArea.className = `message-area ${type}`;
+        messageArea.style.display = 'block';
+        messageArea.textContent = message;
+      };
+    });
+  </script>
 </body>
 </html> 

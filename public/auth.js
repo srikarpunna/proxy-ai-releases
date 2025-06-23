@@ -78,14 +78,37 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Login error:', error);
         showMessage(error.message || 'Login failed. Please try again.', 'error');
       } else if (data && data.user) {
-        console.log('Login successful, redirecting to payment page...');
-        showMessage('Login successful! Redirecting...', 'success');
+        console.log('Login successful, checking admin status...');
+        showMessage('Login successful! Checking access level...', 'success');
         
-        // After successful login, always go to payment page
-        // The payment page will handle admin detection and session creation
-        setTimeout(() => {
-          window.electronAPI.loadPaymentPage();
-        }, 1000);
+        // Try to create admin session - this will only succeed if user is admin
+        try {
+          const sessionResult = await window.electronAPI.createAdminSession();
+          
+          if (sessionResult.error) {
+            // Not an admin or session creation failed - go to payment page
+            console.log('Regular user or admin session failed, redirecting to payment page...');
+            showMessage('Redirecting to payment...', 'success');
+            setTimeout(() => {
+              window.electronAPI.loadPaymentPage();
+            }, 1000);
+          } else {
+            // Admin session created successfully - go directly to main app
+            console.log('Admin user detected, session created, redirecting to main app...');
+            showMessage('Admin access confirmed! Redirecting to app...', 'success');
+            setTimeout(() => {
+              window.electronAPI.loadMainAppPage();
+            }, 1000);
+          }
+        } catch (err) {
+          // Error occurred - treat as regular user and go to payment page
+          console.error('Error during admin session creation:', err);
+          console.log('Treating as regular user, redirecting to payment page...');
+          showMessage('Redirecting to payment...', 'success');
+          setTimeout(() => {
+            window.electronAPI.loadPaymentPage();
+          }, 1000);
+        }
       } else {
         showMessage('Unexpected response from server. Please try again.', 'error');
       }
@@ -134,10 +157,28 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(error.message, 'error');
       } else if (data && data.user) {
         console.log('Signup successful for user:', data.user.id);
-        showMessage('Sign up successful! Please check your email for a confirmation link.', 'success');
+        showMessage('Account created successfully! You can now log in.', 'success');
+        
+        // Auto-switch to login view after successful signup
+        setTimeout(() => {
+          signupView.classList.add('hidden');
+          loginView.classList.remove('hidden');
+          // Pre-fill the email field
+          document.getElementById('login-email').value = email;
+          clearMessages();
+        }, 2000);
       } else {
         console.warn('Signup response had no error and no user. This can happen if the user already exists. Showing a generic message.');
-        showMessage('Sign up successful! If you have an account, please log in. Otherwise, check your email for a confirmation link.', 'success');
+        showMessage('Account created successfully! You can now log in.', 'success');
+        
+        // Auto-switch to login view
+        setTimeout(() => {
+          signupView.classList.add('hidden');
+          loginView.classList.remove('hidden');
+          // Pre-fill the email field
+          document.getElementById('login-email').value = email;
+          clearMessages();
+        }, 2000);
       }
     } catch (e) {
       console.error('An unexpected error occurred during signup:', e);

@@ -1,24 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
 /* --- Base & Variables --- */
 :root {
-  --bg-main: #f4f7f9; /* Light grey background */
-  --bg-panel: #ffffff; /* White panels */
-  --bg-input: #ffffff; /* White input */
-  --bg-msg-user: #007bff; /* Blue user messages */
-  --bg-msg-asst: #e9ecef; /* Light grey assistant messages */
-  --text-main: #212529; /* Dark primary text */
-  --text-light: #495057; /* Lighter secondary text */
-  --text-muted: #6c757d; /* Muted text */
+  --bg-color: #000;
+  --btn-color: #fdfdfd;
+  --btn-bg: #0A8DD3;
+  --primary-text-color: #0A8DD3;
+  --header-link-hover: #0A8DD3;
+  --input-hover-bd-color: #0A8DD3;
+  
+  --bg-main: #000; /* Black background */
+  --bg-panel: rgba(8, 8, 8, 0.8); /* Dark panels */
+  --bg-input: rgba(31, 41, 55, 0.5); /* Dark input */
+  --bg-msg-user: #0A8DD3; /* Blue user messages */
+  --bg-msg-asst: rgba(31, 41, 55, 0.5); /* Dark grey assistant messages */
+  --text-main: #ffffff; /* White primary text */
+  --text-light: #b1b1b1; /* Light grey secondary text */
+  --text-muted: #9ca3af; /* Muted text */
   --text-on-user-msg: #ffffff; /* Text on user messages */
   --text-on-asst-msg: var(--text-main); /* Text on assistant messages */
-  --primary: #007bff; /* Primary blue */
+  --primary: #0A8DD3; /* Primary blue */
   --primary-dark: #0056b3; /* Darker blue for hover */
   --danger: #dc3545; /* Red for recording */
   --danger-dark: #a71d2a; /* Darker red */
-  --border-color: #dee2e6; /* Standard border */
-  --border-input-focus: #80bdff; /* Blue focus border */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.07);
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --border-color: rgba(10, 141, 211, 0.3); /* Blue border */
+  --border-input-focus: #0A8DD3; /* Blue focus border */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);
+  --font-sans: "Ubuntu", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
@@ -80,21 +89,21 @@ header .logo span {
     gap: 0.5rem; /* Space between buttons if more are added */
 }
 
-.header-button {
+.header-btn {
     background: none;
     border: 1px solid var(--border-color);
-    color: var(--text-muted);
+    color: var(--primary-text-color);
     padding: 0.4rem 0.7rem;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 0.9rem;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: all 0.2s ease;
 }
-.header-button:hover {
-    background-color: var(--bg-msg-asst);
+.header-btn:hover {
+    background-color: var(--primary-text-color);
     color: var(--text-main);
 }
-.header-button i {
+.header-btn i {
     font-size: 1rem; /* Icon size */
 }
 
@@ -373,3 +382,237 @@ header .logo span {
 }
 /* Remove old layout styles if they exist */
 .left-panel, .right-panel { display: none; } 
+
+/* === Update Notification Styles === */
+.update-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  max-width: 350px;
+  transform: translateX(400px);
+  transition: transform 0.3s ease-in-out;
+}
+
+.update-notification.show {
+  transform: translateX(0);
+}
+
+.update-notification h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.update-notification p {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.update-notification .update-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.update-notification .update-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.update-notification .update-btn.primary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.update-notification .update-btn.primary:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.update-notification .update-btn.secondary {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.update-notification .update-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.update-progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.update-progress-bar {
+  height: 100%;
+  background: white;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.version-info {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  z-index: 100;
+}
+
+/* --- Trial Status Indicator --- */
+.trial-status {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  -webkit-app-region: no-drag;
+  transition: all 0.3s ease;
+}
+
+.trial-status.trial-active {
+  background-color: #e8f5e8;
+  color: #2d5a2d;
+  border: 1px solid #c3e6c3;
+}
+
+.trial-status.trial-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+  animation: pulse-warning 2s infinite;
+}
+
+.trial-status.trial-expired {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.trial-status.trial-paid {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.trial-status.trial-admin {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #c6c8ca;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.trial-status i {
+  font-size: 0.9rem;
+}
+
+.trial-status #trialDaysLeft {
+  font-weight: 600;
+}
+
+/* --- Trial Notification Modal --- */
+.trial-notification {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.trial-notification.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.trial-notification-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.trial-notification h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-main);
+  font-size: 1.3rem;
+}
+
+.trial-notification p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.trial-notification .notification-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.trial-notification .btn {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.trial-notification .btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.trial-notification .btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.trial-notification .btn-secondary {
+  background-color: var(--bg-msg-asst);
+  color: var(--text-main);
+}
+
+.trial-notification .btn-secondary:hover {
+  background-color: var(--border-color);
+} 

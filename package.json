@@ -17,41 +17,62 @@
     "@google/generative-ai": "^0.24.0",
     "@supabase/supabase-js": "^2.50.0",
     "axios": "^1.8.4",
-    "dotenv": "^16.4.7",
+    "cross-env": "^7.0.3",
+    "electron-updater": "^6.6.2",
     "form-data": "^4.0.2",
     "microphone-stream": "^6.0.1",
-    "node-vad": "^1.1.4",
-    "screenshot-desktop": "^1.15.1",
-    "tesseract.js": "^6.0.1",
     "wav": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
-    "cross-env": "^7.0.3",
     "electron": "^31.2.1",
     "electron-builder": "^26.0.12",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "build": {
-    "appId": "com.proxyai.app",
+    "appId": "com.proxyai.assistant",
     "productName": "Proxy AI Assistant",
-    "files": [
-      "dist/**/*",
-      "public/**/*",
-      "package.json"
-    ],
     "directories": {
-      "buildResources": "assets",
       "output": "release"
     },
+    "files": [
+      "public/**/*",
+      "dist/**/*",
+      "!src/**/*",
+      "!**/*.ts",
+      "!**/*.map"
+    ],
     "mac": {
-      "target": "dmg",
-      "icon": "public/icon.icns"
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        }
+      ]
     },
     "win": {
-      "target": "nsis",
-      "icon": "public/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "srikarpunna",
+      "repo": "proxy-ai-app",
+      "private": true
     }
   }
 }

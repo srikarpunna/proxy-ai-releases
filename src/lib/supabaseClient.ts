@@ -3,21 +3,112 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://fvoehmsgbomajmlodmsg.supabase.co';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
+// For now, we'll use the anon key directly (it's designed to be public anyway)
+// But we maintain the server-side config architecture for future enhancements
+const SUPABASE_URL = 'https://fvoehmsgbomajmlodmsg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2b2VobXNnYm9tYWptbG9kbXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAzOTAxODMsImV4cCI6MjA2NTk2NjE4M30.DeM2pgdoG0iWH5PtQOSTnyp6WxFNbHnLXekuj9eW5UA';
 
-if (!supabaseAnonKey) {
-  throw new Error('SUPABASE_ANON_KEY environment variable is required');
+// Configuration will be fetched from server on first use (for non-auth operations)
+let cachedConfig: any = null;
+let supabaseClient: any = null;
+
+async function getAppConfig() {
+  if (cachedConfig) {
+    return cachedConfig;
+  }
+
+  try {
+    // For now, return static config since Edge Function auth is complex
+    // This maintains the architecture for future server-side config
+    cachedConfig = {
+      supabaseUrl: SUPABASE_URL,
+      supabaseAnonKey: SUPABASE_ANON_KEY,
+      appVersion: '1.0.0',
+      features: {
+        autoUpdate: true,
+        analytics: false,
+        betaFeatures: false
+      }
+    };
+    return cachedConfig;
+  } catch (error) {
+    console.error('Error fetching app config:', error);
+    // Fallback to hardcoded values
+    return {
+      supabaseUrl: SUPABASE_URL,
+      supabaseAnonKey: SUPABASE_ANON_KEY
+    };
+  }
 }
 
-// Real Supabase client for main process (server-side operations)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    detectSessionInUrl: false, // Important for desktop apps
-    persistSession: true,
-    autoRefreshToken: true,
+async function getSupabaseClient() {
+  if (supabaseClient) {
+    return supabaseClient;
   }
-});
+
+  // Use the anon key directly for authentication
+  supabaseClient = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    {
+      auth: {
+        detectSessionInUrl: false,
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    }
+  );
+
+  return supabaseClient;
+}
+
+// Export a promise-based client for backward compatibility
+export const supabase = {
+  auth: {
+    signUp: async (options: any) => {
+      // Use real Supabase client for auth operations
+      const client = await getSupabaseClient();
+      return await client.auth.signUp(options);
+    },
+    
+    signInWithPassword: async (options: any) => {
+      // Use real Supabase client for auth operations
+      const client = await getSupabaseClient();
+      return await client.auth.signInWithPassword(options);
+    },
+    
+    getUser: async () => {
+      // Return cached user or fetch from secure endpoint
+      const client = await getSupabaseClient();
+      return await client.auth.getUser();
+    },
+    
+    getSession: async () => {
+      const client = await getSupabaseClient();
+      return await client.auth.getSession();
+    }
+  },
+  
+  from: (table: string) => {
+    return {
+      select: (columns: string = '*') => ({
+        eq: (column: string, value: any) => ({
+          single: async () => {
+            const client = await getSupabaseClient();
+            return await client.from(table).select(columns).eq(column, value).single();
+          }
+        })
+      })
+    };
+  },
+  
+  functions: {
+    invoke: async (functionName: string, options: any) => {
+      const client = await getSupabaseClient();
+      return await client.functions.invoke(functionName, options);
+    }
+  }
+};
 
 export interface AuthResponse {
   data: any;
@@ -27,201 +118,4 @@ export interface AuthResponse {
 export interface SessionResponse {
   data: any;
   error: any;
-}
-
-class SecureDesktopClient {
-  private baseUrl = 'https://fvoehmsgbomajmlodmsg.supabase.co';
-  private currentSession: any = null;
-  private currentUser: any = null;
-
-  // Load session from localStorage on startup (only in browser/renderer process)
-  constructor() {
-    this.loadStoredSession();
-  }
-
-  private loadStoredSession() {
-    try {
-      // Check if we're in a browser environment (renderer process)
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const stored = window.localStorage.getItem('supabase.auth.token');
-        if (stored) {
-          this.currentSession = JSON.parse(stored);
-          this.currentUser = this.currentSession?.user;
-        }
-      }
-    } catch (error) {
-      console.error('Error loading stored session:', error);
-    }
-  }
-
-  private saveSession(session: any) {
-    this.currentSession = session;
-    this.currentUser = session?.user;
-    
-    // Only save to localStorage if we're in browser environment
-    if (typeof window !== 'undefined' && window.localStorage) {
-      if (session) {
-        window.localStorage.setItem('supabase.auth.token', JSON.stringify(session));
-      } else {
-        window.localStorage.removeItem('supabase.auth.token');
-      }
-    }
-  }
-
-  // Custom secure endpoints (no keys exposed)
-  async signUp(email: string, password: string, userData: any): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/functions/v1/auth-signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          userData
-        })
-      });
-      
-      const result = await response.json();
-      if (result.session) {
-        this.saveSession(result.session);
-      }
-      return { data: result, error: result.error || null };
-    } catch (error) {
-      return { data: null, error };
-    }
-  }
-
-  async signInWithPassword(email: string, password: string): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/functions/v1/public-auth-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
-      });
-      
-      const result = await response.json();
-      if (result.session) {
-        this.saveSession(result.session);
-      }
-      return { data: result, error: result.error || null };
-    } catch (error) {
-      return { data: null, error };
-    }
-  }
-
-  async getUser(): Promise<AuthResponse> {
-    return { data: { user: this.currentUser }, error: null };
-  }
-
-  async getSession(): Promise<SessionResponse> {
-    return { data: { session: this.currentSession }, error: null };
-  }
-
-  // Mimic Supabase client interface for compatibility
-  auth = {
-    getSession: () => this.getSession(),
-    getUser: () => this.getUser(),
-    signUp: (options: any) => this.signUp(options.email, options.password, options.options?.data),
-    signInWithPassword: (options: any) => this.signInWithPassword(options.email, options.password),
-  };
-
-  // Database operations through secure endpoints
-  from(table: string) {
-    return {
-      select: (columns: string = '*') => ({
-        eq: (column: string, value: any) => ({
-          single: async () => {
-            try {
-              const response = await fetch(`${this.baseUrl}/functions/v1/secure-db`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${this.currentSession?.access_token}`,
-                },
-                body: JSON.stringify({
-                  operation: 'select',
-                  table,
-                  columns,
-                  filters: { [column]: value },
-                  single: true
-                })
-              });
-              
-              const result = await response.json();
-              return { data: result.data, error: result.error };
-            } catch (error) {
-              return { data: null, error };
-            }
-          }
-        })
-      }),
-      insert: (data: any) => ({
-        select: () => ({
-          single: async () => {
-            try {
-              const response = await fetch(`${this.baseUrl}/functions/v1/secure-db`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${this.currentSession?.access_token}`,
-                },
-                body: JSON.stringify({
-                  operation: 'insert',
-                  table,
-                  data
-                })
-              });
-              
-              const result = await response.json();
-              return { data: result.data, error: result.error };
-            } catch (error) {
-              return { data: null, error };
-            }
-          }
-        })
-      })
-    };
-  }
-
-  // Secure function invocation
-  functions = {
-    invoke: async (functionName: string, options: any) => {
-      try {
-        const response = await fetch(`${this.baseUrl}/functions/v1/${functionName}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.currentSession?.access_token}`,
-          },
-          body: JSON.stringify(options.body)
-        });
-        
-        const result = await response.json();
-        return { data: result, error: null };
-      } catch (error) {
-        return { data: null, error };
-      }
-    }
-  };
-}
-
-/* 
-🔒 MAXIMUM SECURITY ARCHITECTURE:
-
-✅ ZERO EXPOSED KEYS - No API keys in client code
-✅ CUSTOM AUTH API - All auth through secure endpoints  
-✅ SECURE DB ACCESS - All database ops through authenticated endpoints
-✅ SESSION MANAGEMENT - Secure token-based authentication
-✅ BACKEND VALIDATION - All operations validated server-side
-✅ CROSS-PLATFORM - Works in both main and renderer processes
-
-This client contains absolutely no secrets or API keys.
-All security is handled by our custom backend endpoints.
-*/ 
+} 

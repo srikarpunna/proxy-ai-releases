@@ -29,6 +29,16 @@ class UIController {
     this.toggleBrowserBtn = document.getElementById('toggleBrowserBtn');
     this.browserViewContainer = document.getElementById('browserViewContainer');
     
+    // Trial Status Elements
+    this.trialStatus = document.getElementById('trialStatus');
+    this.trialStatusText = document.getElementById('trialStatusText');
+    this.trialDaysLeft = document.getElementById('trialDaysLeft');
+    this.trialNotification = document.getElementById('trialNotification');
+    this.notificationTitle = document.getElementById('notificationTitle');
+    this.notificationMessage = document.getElementById('notificationMessage');
+    this.upgradeBtn = document.getElementById('upgradeBtn');
+    this.dismissBtn = document.getElementById('dismissBtn');
+    
     // State
     this.personalizationData = {};
     this.conversationHistory = [];
@@ -39,9 +49,12 @@ class UIController {
     this.attachedImageData = null;
     this.attachedAudioData = null;
     this.isBrowserViewVisible = false;
+    this.currentUser = null;
+    this.sessionStatus = null;
     
     // Initialize
     this.setupEventListeners();
+    this.initializeTrialStatus();
   }
   
   /**
@@ -443,8 +456,407 @@ class UIController {
     this.toggleBrowserBtn.title = this.isBrowserViewVisible ? 'Show Chat View' : 'Show Web Browser';
     window.api?.send('toggle-browser-view', { action });
   }
+
+  /**
+   * Initialize trial status checking and setup event listeners
+   */
+  async initializeTrialStatus() {
+    try {
+      // Get current user
+      const { data, error } = await window.electronAPI.getCurrentUser();
+      if (error || !data?.user) {
+        console.error('Failed to get current user for trial status');
+        return;
+      }
+      
+      this.currentUser = data.user;
+      
+      // Setup trial notification event listeners
+      this.upgradeBtn?.addEventListener('click', () => this.handleUpgrade());
+      this.dismissBtn?.addEventListener('click', () => this.dismissTrialNotification());
+      
+      // Check trial status
+      await this.checkTrialStatus();
+      
+      // Set up periodic checking (every 5 minutes)
+      setInterval(() => this.checkTrialStatus(), 5 * 60 * 1000);
+      
+    } catch (error) {
+      console.error('Error initializing trial status:', error);
+    }
+  }
+
+  /**
+   * Check current trial/session status and update UI
+   */
+  async checkTrialStatus() {
+    try {
+      if (!this.currentUser) return;
+      
+      const { data: sessionData, error } = await window.electronAPI.getSessionStatus(this.currentUser.id);
+      
+      if (error) {
+        console.error('Error checking session status:', error);
+        return;
+      }
+      
+      this.sessionStatus = sessionData;
+      this.updateTrialStatusDisplay();
+      this.checkForTrialNotifications();
+      
+    } catch (error) {
+      console.error('Error in checkTrialStatus:', error);
+    }
+  }
+
+  /**
+   * Update the trial status indicator in the header
+   */
+  updateTrialStatusDisplay() {
+    if (!this.trialStatus || !this.sessionStatus) return;
+    
+    // Remove all status classes
+    this.trialStatus.classList.remove('trial-active', 'trial-warning', 'trial-expired', 'trial-paid', 'trial-admin');
+    
+    const sessionType = this.sessionStatus.session_type;
+    const status = this.sessionStatus.status;
+    
+    if (sessionType === 'admin') {
+      this.trialStatus.classList.add('trial-admin');
+      this.trialStatusText.textContent = 'Admin Access';
+      this.trialDaysLeft.textContent = '';
+      this.trialStatus.querySelector('i').className = 'fas fa-crown';
+    } else if (sessionType === 'paid') {
+      this.trialStatus.classList.add('trial-paid');
+      this.trialStatusText.textContent = 'Premium';
+      this.trialDaysLeft.textContent = this.formatTimeRemaining(this.sessionStatus.activated_at, 24); // 24 hours
+      this.trialStatus.querySelector('i').className = 'fas fa-star';
+    } else if (sessionType === 'free_trial') {
+      const daysLeft = this.calculateDaysLeft(this.sessionStatus.expires_at);
+      
+      if (daysLeft <= 0) {
+        this.trialStatus.classList.add('trial-expired');
+        this.trialStatusText.textContent = 'Trial Expired';
+        this.trialDaysLeft.textContent = '';
+        this.trialStatus.querySelector('i').className = 'fas fa-exclamation-triangle';
+      } else if (daysLeft <= 3) {
+        this.trialStatus.classList.add('trial-warning');
+        this.trialStatusText.textContent = 'Trial Ending';
+        this.trialDaysLeft.textContent = `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
+        this.trialStatus.querySelector('i').className = 'fas fa-clock';
+      } else {
+        this.trialStatus.classList.add('trial-active');
+        this.trialStatusText.textContent = 'Free Trial';
+        this.trialDaysLeft.textContent = `${daysLeft} days left`;
+        this.trialStatus.querySelector('i').className = 'fas fa-clock';
+      }
+    }
+    
+    // Show the trial status indicator
+    this.trialStatus.classList.remove('hidden');
+  }
+
+  /**
+   * Check if we need to show trial expiration notifications
+   */
+  checkForTrialNotifications() {
+    if (!this.sessionStatus || this.sessionStatus.session_type !== 'free_trial') return;
+    
+    const daysLeft = this.calculateDaysLeft(this.sessionStatus.expires_at);
+    
+    // Show notification if 3 days or less remaining
+    if (daysLeft <= 3 && daysLeft > 0) {
+      this.showTrialNotification(
+        'Trial Expiring Soon',
+        `Your free trial will expire in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Upgrade now to continue using the assistant.`
+      );
+    } else if (daysLeft <= 0) {
+      this.showTrialNotification(
+        'Trial Expired',
+        'Your free trial has expired. Please upgrade to continue using the assistant.',
+        true
+      );
+    }
+  }
+
+  /**
+   * Show trial notification modal
+   */
+  showTrialNotification(title, message, isExpired = false) {
+    if (!this.trialNotification) return;
+    
+    // Don't show notification too frequently (once per session)
+    const notificationKey = `trial_notification_${isExpired ? 'expired' : 'warning'}_shown`;
+    if (sessionStorage.getItem(notificationKey)) return;
+    
+    this.notificationTitle.textContent = title;
+    this.notificationMessage.textContent = message;
+    
+    if (isExpired) {
+      this.dismissBtn.textContent = 'Continue Anyway';
+      this.upgradeBtn.textContent = 'Upgrade Now';
+    } else {
+      this.dismissBtn.textContent = 'Remind Later';
+      this.upgradeBtn.textContent = 'Upgrade Now';
+    }
+    
+    this.trialNotification.classList.add('show');
+    
+    // Mark as shown for this session
+    sessionStorage.setItem(notificationKey, 'true');
+  }
+
+  /**
+   * Handle upgrade button click
+   */
+  handleUpgrade() {
+    this.dismissTrialNotification();
+    // Navigate to payment page
+    if (window.electronAPI?.loadPaymentPage) {
+      window.electronAPI.loadPaymentPage();
+    }
+  }
+
+  /**
+   * Dismiss trial notification
+   */
+  dismissTrialNotification() {
+    if (this.trialNotification) {
+      this.trialNotification.classList.remove('show');
+    }
+  }
+
+  /**
+   * Calculate days left from expiration date
+   */
+  calculateDaysLeft(expiresAt) {
+    if (!expiresAt) return 0;
+    
+    const now = new Date();
+    const expiration = new Date(expiresAt);
+    const diffTime = expiration - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return Math.max(0, diffDays);
+  }
+
+  /**
+   * Format time remaining for paid sessions
+   */
+  formatTimeRemaining(activatedAt, durationHours) {
+    if (!activatedAt) return '';
+    
+    const activated = new Date(activatedAt);
+    const expires = new Date(activated.getTime() + (durationHours * 60 * 60 * 1000));
+    const now = new Date();
+    const diffTime = expires - now;
+    
+    if (diffTime <= 0) return 'Expired';
+    
+    const hours = Math.floor(diffTime / (1000 * 60 * 60));
+    const minutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m left`;
+    } else {
+      return `${minutes}m left`;
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   window.uiController = new UIController();
-}); 
+});
+
+/**
+ * UpdateManager - Handles app updates and notifications
+ */
+class UpdateManager {
+  constructor() {
+    this.currentVersion = '1.0.0';
+    this.isUpdateAvailable = false;
+    this.isDownloading = false;
+    this.downloadProgress = 0;
+    
+    this.init();
+  }
+
+  async init() {
+    try {
+      // Get current app version
+      if (window.electronAPI && window.electronAPI.getAppVersion) {
+        this.currentVersion = await window.electronAPI.getAppVersion();
+      }
+      
+      // Display version info
+      this.displayVersionInfo();
+      
+      // Check for updates on startup (after a delay)
+      setTimeout(() => {
+        this.checkForUpdates();
+      }, 5000);
+      
+    } catch (error) {
+      console.error('Error initializing UpdateManager:', error);
+    }
+  }
+
+  displayVersionInfo() {
+    // Add version info to the page
+    let versionElement = document.querySelector('.version-info');
+    if (!versionElement) {
+      versionElement = document.createElement('div');
+      versionElement.className = 'version-info';
+      document.body.appendChild(versionElement);
+    }
+    versionElement.textContent = `v${this.currentVersion}`;
+  }
+
+  async checkForUpdates() {
+    if (!window.electronAPI || !window.electronAPI.checkForUpdates) {
+      console.log('Update functionality not available in this environment');
+      return;
+    }
+
+    try {
+      console.log('🔍 Checking for updates...');
+      const result = await window.electronAPI.checkForUpdates();
+      
+      if (result.success && result.result) {
+        console.log('✅ Update check completed');
+        // The auto-updater will handle showing notifications
+      } else {
+        console.log('ℹ️ No updates available or error occurred');
+      }
+    } catch (error) {
+      console.error('Error checking for updates:', error);
+    }
+  }
+
+  showUpdateNotification(updateInfo) {
+    // Remove existing notification
+    const existing = document.querySelector('.update-notification');
+    if (existing) {
+      existing.remove();
+    }
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+      <h4>🚀 Update Available</h4>
+      <p>Version ${updateInfo.version} is ready to download.</p>
+      <div class="update-actions">
+        <button class="update-btn primary" onclick="updateManager.downloadUpdate()">
+          Download Now
+        </button>
+        <button class="update-btn secondary" onclick="updateManager.dismissNotification()">
+          Later
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+    
+    // Show with animation
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 100);
+  }
+
+  showDownloadProgress(progress) {
+    const notification = document.querySelector('.update-notification');
+    if (!notification) return;
+
+    notification.innerHTML = `
+      <h4>📥 Downloading Update</h4>
+      <p>Downloading version ${progress.version}...</p>
+      <div class="update-progress">
+        <div class="update-progress-bar" style="width: ${progress.percent}%"></div>
+      </div>
+      <p style="font-size: 12px; opacity: 0.8;">
+        ${Math.round(progress.percent)}% - ${this.formatBytes(progress.transferred)} / ${this.formatBytes(progress.total)}
+      </p>
+    `;
+  }
+
+  showReadyToInstall() {
+    const notification = document.querySelector('.update-notification');
+    if (!notification) return;
+
+    notification.innerHTML = `
+      <h4>✅ Update Ready</h4>
+      <p>The update has been downloaded and is ready to install.</p>
+      <div class="update-actions">
+        <button class="update-btn primary" onclick="updateManager.installUpdate()">
+          Restart & Install
+        </button>
+        <button class="update-btn secondary" onclick="updateManager.dismissNotification()">
+          Install Later
+        </button>
+      </div>
+    `;
+  }
+
+  async downloadUpdate() {
+    if (!window.electronAPI || !window.electronAPI.downloadUpdate) return;
+
+    try {
+      this.isDownloading = true;
+      const result = await window.electronAPI.downloadUpdate();
+      
+      if (result.success) {
+        console.log('✅ Update download started');
+      } else {
+        console.error('❌ Failed to start download:', result.error);
+        this.showError('Failed to download update: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error downloading update:', error);
+      this.showError('Error downloading update: ' + error.message);
+    }
+  }
+
+  async installUpdate() {
+    if (!window.electronAPI || !window.electronAPI.installUpdate) return;
+
+    try {
+      await window.electronAPI.installUpdate();
+    } catch (error) {
+      console.error('Error installing update:', error);
+    }
+  }
+
+  dismissNotification() {
+    const notification = document.querySelector('.update-notification');
+    if (notification) {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        notification.remove();
+      }, 300);
+    }
+  }
+
+  showError(message) {
+    const notification = document.querySelector('.update-notification');
+    if (!notification) return;
+
+    notification.innerHTML = `
+      <h4>❌ Update Error</h4>
+      <p>${message}</p>
+      <div class="update-actions">
+        <button class="update-btn secondary" onclick="updateManager.dismissNotification()">
+          Close
+        </button>
+      </div>
+    `;
+  }
+
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+} 

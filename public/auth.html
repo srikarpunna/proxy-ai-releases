@@ -4,63 +4,436 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Proxy AI Assistant</title>
-  <link rel="stylesheet" href="auth.css">
+  <link rel="shortcut icon" href="./assets/logo/logo.png" type="image/x-icon" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+    integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #000;
+      --btn-color: #fdfdfd;
+      --btn-bg: #0A8DD3;
+      --primary-text-color: #0A8DD3;
+      --header-link-hover: #0A8DD3;
+      --input-hover-bd-color: #0A8DD3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: "Ubuntu", sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .gradient-text {
+      background: rgb(215,215,215);
+      background: linear-gradient(90deg, rgba(215,215,215,1) 18%, rgba(136,136,136,1) 71%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-img-bg-grad {
+      position: absolute;
+      left: 50%;
+      top: 20%;
+      transform: translateX(-50%);
+      height: 300px;
+      width: 300px;
+      background: rgb(126,34,206);
+      background: linear-gradient(90deg, #7e22ce91 8%, #625aafae 31%, #7badbbbc 76%, #54d2d0ca 89%);
+      filter: blur(50px);
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .auth-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 28rem;
+    }
+
+    .logo-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo-image {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1rem auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .logo-header h1 {
+      font-size: 1.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-header p {
+      color: #b1b1b1;
+      font-size: 0.875rem;
+    }
+
+    .auth-box {
+      background: rgba(8, 8, 8, 0.8);
+      border: 1px solid rgba(10, 141, 211, 0.3);
+      border-radius: 10px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-header h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+      color: #b1b1b1;
+      font-size: 0.875rem;
+    }
+
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      color: var(--primary-text-color);
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      padding: 10px;
+      background-color: transparent;
+      border-radius: 5px;
+      min-width: 100px;
+      border: 1px solid #818080;
+      color: #ffffff;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border 0.3s;
+    }
+
+    .form-group input::placeholder {
+      color: #9ca3af;
+    }
+
+    .form-group input:active,
+    .form-group input:focus,
+    .form-group input:focus-within {
+      outline: none;
+      border: 1px solid var(--input-hover-bd-color) !important;
+    }
+
+    .btn-primary {
+      padding: 10px 15px;
+      width: 100%;
+      border-radius: 5px;
+      color: var(--btn-color);
+      background-color: var(--btn-bg);
+      border: none;
+      font-weight: 500;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 25px rgba(10, 141, 211, 0.2);
+    }
+
+    .btn-primary:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(10, 141, 211, 0.3);
+    }
+
+    .toggle-view {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .toggle-view p {
+      color: #b1b1b1;
+      font-size: 0.875rem;
+    }
+
+    .toggle-view a {
+      color: var(--primary-text-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .toggle-view a:hover {
+      color: #ffffff;
+    }
+
+    .message-area {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 5px;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .message-area.error {
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      color: #fca5a5;
+    }
+
+    .message-area.success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    .message-area.info {
+      background: rgba(10, 141, 211, 0.1);
+      border: 1px solid rgba(10, 141, 211, 0.3);
+      color: #93c5fd;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: #b1b1b1;
+    }
+
+    .footer p {
+      font-size: 0.875rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .auth-box {
+        padding: 1.5rem;
+      }
+      
+      .logo-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- Background gradient effect -->
+  <div class="hero-img-bg-grad"></div>
+  
   <div class="auth-container">
+    <!-- Logo and Header -->
+    <div class="logo-header">
+      <img src="./assets/logo/logo.png" alt="Logo" class="logo-image">
+      <h1 class="gradient-text">Proxy AI Assistant</h1>
+      <p>Your privacy-focused desktop copilot</p>
+    </div>
+
+    <!-- Auth Box -->
     <div class="auth-box">
+      
+      <!-- Login View -->
       <div id="login-view">
-        <h1>Welcome Back</h1>
-        <p>Please sign in to continue.</p>
-        <form id="login-form">
-          <div class="input-group">
-            <label for="login-email">Email</label>
-            <input type="email" id="login-email" required>
+        <div class="auth-header">
+          <h2>Welcome Back</h2>
+          <p>Please sign in to continue</p>
+        </div>
+        
+        <form id="login-form" class="form-container">
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input 
+              type="email" 
+              id="login-email" 
+              required
+              placeholder="Enter your email"
+            />
           </div>
-          <div class="input-group">
+          
+          <div class="form-group">
             <label for="login-password">Password</label>
-            <input type="password" id="login-password" required>
+            <input 
+              type="password" 
+              id="login-password" 
+              required
+              placeholder="Enter your password"
+            />
           </div>
-          <button type="submit" class="btn-primary">Login</button>
+          
+          <button type="submit" class="btn-primary">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Sign In
+          </button>
         </form>
-        <p class="toggle-view">
-          Don't have an account? <a href="#" id="show-signup">Sign Up</a>
-        </p>
+        
+        <div class="toggle-view">
+          <p>
+            Don't have an account? 
+            <a href="#" id="show-signup">Create Account</a>
+          </p>
+        </div>
       </div>
 
+      <!-- Signup View -->
       <div id="signup-view" class="hidden">
-        <h1>Create Account</h1>
-        <p>Get started with your AI assistant.</p>
-        <form id="signup-form">
-          <div class="input-group">
-            <label for="signup-firstname">First Name</label>
-            <input type="text" id="signup-firstname" required>
+        <div class="auth-header">
+          <h2>Create Account</h2>
+          <p>Get started with your AI assistant</p>
+        </div>
+        
+        <form id="signup-form" class="form-container">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="signup-firstname">First Name</label>
+              <input 
+                type="text" 
+                id="signup-firstname" 
+                required
+                placeholder="First name"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label for="signup-lastname">Last Name</label>
+              <input 
+                type="text" 
+                id="signup-lastname" 
+                required
+                placeholder="Last name"
+              />
+            </div>
           </div>
-          <div class="input-group">
-            <label for="signup-lastname">Last Name</label>
-            <input type="text" id="signup-lastname" required>
-          </div>
-          <div class="input-group">
+          
+          <div class="form-group">
             <label for="signup-phone">Phone Number</label>
-            <input type="tel" id="signup-phone" required>
+            <input 
+              type="tel" 
+              id="signup-phone" 
+              required
+              placeholder="(555) 123-4567"
+            />
           </div>
-          <div class="input-group">
-            <label for="signup-email">Email</label>
-            <input type="email" id="signup-email" required>
+          
+          <div class="form-group">
+            <label for="signup-email">Email Address</label>
+            <input 
+              type="email" 
+              id="signup-email" 
+              required
+              placeholder="Enter your email"
+            />
           </div>
-          <div class="input-group">
+          
+          <div class="form-group">
             <label for="signup-password">Password</label>
-            <input type="password" id="signup-password" required>
+            <input 
+              type="password" 
+              id="signup-password" 
+              required
+              placeholder="Create a password"
+            />
           </div>
-          <button type="submit" class="btn-primary">Create Account</button>
+          
+          <button type="submit" class="btn-primary">
+            <i class="bi bi-person-plus"></i>
+            Create Account
+          </button>
         </form>
-        <p class="toggle-view">
-          Already have an account? <a href="#" id="show-login">Login</a>
-        </p>
+        
+        <div class="toggle-view">
+          <p>
+            Already have an account? 
+            <a href="#" id="show-login">Sign In</a>
+          </p>
+        </div>
       </div>
+      
+      <!-- Message Area -->
       <div id="message-area" class="message-area"></div>
     </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        <i class="bi bi-shield-check"></i>
+        Privacy-focused • Local-first • Secure
+      </p>
+    </div>
   </div>
+  
   <script src="auth.js"></script>
+  <script>
+    // Enhanced message area styling
+    document.addEventListener('DOMContentLoaded', function() {
+      const messageArea = document.getElementById('message-area');
+      
+      // Override the message area display function
+      window.showMessage = function(message, type = 'info') {
+        messageArea.className = `message-area ${type}`;
+        messageArea.style.display = 'block';
+        messageArea.textContent = message;
+      };
+    });
+  </script>
 </body>
 </html> 
