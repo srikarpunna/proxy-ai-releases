@@ -1,17 +1,17 @@
-version: 1.0.10
+version: 1.0.11
 files:
-  - url: Proxy-AI-Assistant-1.0.10-arm64-mac.zip
-    sha512: m1u/6dSX6FVwI0tlVmqTx8g6keuEE/oxST9HT6T6fXv0hP5fMdXZU7HI7+Bbpeb/EAW1RPqsQms1NmGbi/tZjQ==
-    size: 95961584
-  - url: Proxy-AI-Assistant-1.0.10-mac.zip
-    sha512: l9YrP4bz6KL6GmQxotRCm2eTNSn2HLLJqPVl7lu377aU1bqApl8MCTYSw3C0Ju5G1w6pPSC1hAm2q19QIDgkoA==
-    size: 102016598
-  - url: Proxy-AI-Assistant-1.0.10-arm64.dmg
-    sha512: JcoBEVdha/f3CaVoYB2L9v3HgGYDNneaKbOvR/pYDo/eDjijYU/82/z9gsHJnoyk98X/Vtdhkc1BUXD8if+5Fw==
-    size: 100845524
-  - url: Proxy-AI-Assistant-1.0.10.dmg
-    sha512: 2EpBp6zieUw4UXs2O7v72Vqq+JC/itPSLcNd6KSP8EU/YNE2Iilw95DsHwo3IKXr6WoCz8w91cIf8u//njkUeA==
-    size: 106887873
-path: Proxy-AI-Assistant-1.0.10-arm64-mac.zip
-sha512: m1u/6dSX6FVwI0tlVmqTx8g6keuEE/oxST9HT6T6fXv0hP5fMdXZU7HI7+Bbpeb/EAW1RPqsQms1NmGbi/tZjQ==
-releaseDate: '2025-06-28T01:26:59.572Z'
+  - url: Proxy-AI-Assistant-1.0.11-arm64-mac.zip
+    sha512: RiYtWCueKOxsdleUV/UjZtq9olL+ex1Lde71Iw+HbWaJN6iFgBq1G7CxlN5d+6S6cwr5BLWDpihbQzM+BzbYLA==
+    size: 95961583
+  - url: Proxy-AI-Assistant-1.0.11-mac.zip
+    sha512: Yv0VFGFIMPn6uqSny84NWQS1j1OJ6KKUobb889z0ZhCxnE3YREKJyz44WF/zmkG+L75/E12R1mQuSl98Ymm1IA==
+    size: 102016597
+  - url: Proxy-AI-Assistant-1.0.11-arm64.dmg
+    sha512: gtYqyeEWll04EhWdKDiZNp1p8L+OkfDKl+m9o9Uh7ZcLn8hyXuOergzWkSzoJTDQWtoyviu+jU9S0fP/Rq4Y/w==
+    size: 100848179
+  - url: Proxy-AI-Assistant-1.0.11.dmg
+    sha512: ZJF6g1XAe+HBJYE/EaCjHvsQ2yioz3jPZeAwN/5cPAAV08IhkoPuxNAXJZxyY5FtRl5o6N21gOyQA7n+t2kaDA==
+    size: 106887874
+path: Proxy-AI-Assistant-1.0.11-arm64-mac.zip
+sha512: RiYtWCueKOxsdleUV/UjZtq9olL+ex1Lde71Iw+HbWaJN6iFgBq1G7CxlN5d+6S6cwr5BLWDpihbQzM+BzbYLA==
+releaseDate: '2025-07-07T04:46:31.168Z'
